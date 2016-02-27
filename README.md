@@ -1,17 +1,11 @@
 educnn
 ===
 
-> Simple implementation of CNN (convolutional neural network) with precise-comments.
-
-## Languages
-
-Currently, implementation with following languages are provided.
-
-* C++
+> The simple implementation of CNN (convolutional neural network).
 
 ## Build
 
-For building the project, you need [Eigen](http://eigen.tuxfamily.org/index.php).
+For building the project, you need [Eigen](http://eigen.tuxfamily.org/index.php) (Version 3.0 or higher).
 
 ```shell
 # Setup Eigen:
@@ -25,9 +19,20 @@ $ mkdir build && cd build
 $ cmake -D EIGEN3_INCLUDE_DIR=$YOUR_EIGEN_DIR ..
 ```
 
+## Run
+
+```shell
+# Run ordinary neural network (2 fully-connected layers)
+$ ./test_neural
+
+# Run LeCun Net
+# Convolution -> Maxpooling -> Convolution -> Maxpooling -> FC -> FC
+$ ./test_lecun
+```
+
 ## Acknowledgments
 
-The author sincerely appropriate for the following websites with fruitful information about deep learning and convolutional neural network.
+The author sincerely appropriates for the following websites with fruitful information about deep learning and convolutional neural network.
 
 * [Deep Learning Tutorial: Convolutional Neural Net (LeNet)](http://deeplearning.net/tutorial/lenet.html)
 * [tiny-cnn](https://github.com/nyanp/tiny-cnn)

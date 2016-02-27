@@ -5,6 +5,7 @@ configure_file(directories.in.h
 set(EDUCNN_HEADERS ${EDUCNN_HEADERS}
     educnn.h
     common.h
+    timer.h
     directories.h
     activation.h
     mnist.h

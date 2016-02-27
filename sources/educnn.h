@@ -5,6 +5,7 @@
 #ifndef _EDUCNN_H_
 #define _EDUCNN_H_
 
+#include "timer.h"
 #include "mnist.h"
 #include "network.h"
 #include "convolution_layer.h"
