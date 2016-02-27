@@ -17,9 +17,6 @@ const double EPS = 1.0e-20;
 const double INFTY = 1.0e20;
 
 struct Size {
-    int rows = 0;
-    int cols = 0;
-
     Size() {
     }
     
@@ -32,8 +29,14 @@ struct Size {
         return rows * cols;
     }
 
+    int rows = 0;
+    int cols = 0;
 };
 
+/**
+ * The uncopyable interface class to forbid copy and assignement
+ * in the derived class.
+ */
 class Uncopyable {
 public:
     Uncopyable() {}
@@ -42,6 +45,20 @@ public:
     Uncopyable(const Uncopyable&) = delete;
     Uncopyable& operator=(const Uncopyable&) = delete;
 };
+
+/**
+ * Check function
+ */
+double check(const Matrix& m1, const Matrix& m2) {
+    Matrix::Index i1, i2;
+    double ret = 0.0;
+    for (int j = 0; j < m1.cols(); j++) {
+        m1.col(j).maxCoeff(&i1);
+        m2.col(j).maxCoeff(&i2);
+        ret += i1 == i2 ? 1.0 : 0.0;
+    }
+    return 100.0 * ret / m1.cols();
+}
 
 // -----------------------------------------------------------------------------
 // Assertion with message

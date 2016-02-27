@@ -16,17 +16,6 @@
 #include "average_pooling_layer.h"
 #include "fully_connected_layer.h"
 
-double check(const Matrix& m1, const Matrix& m2) {
-    Matrix::Index i1, i2;
-    double ret = 0.0;
-    for (int j = 0; j < m1.cols(); j++) {
-        m1.col(j).maxCoeff(&i1);
-        m2.col(j).maxCoeff(&i2);
-        ret += i1 == i2 ? 1.0 : 0.0;
-    }
-    return 100.0 * ret / m1.cols();
-}
-
 int main(int argc, char** argv) {
     Matrix train_data = mnist::train_data();
     Matrix train_label = mnist::train_label();
