@@ -1,14 +1,7 @@
 set(BUILD_TARGET "educnn")
 
 set(SOURCES ${SOURCES}
-    educnn.cpp
-    activation.cpp
-    mnist.cpp
-    network.cpp
-    fully_connected_layer.cpp
-    convolution_layer.cpp
-    max_pooling_layer.cpp
-    average_pooling_layer.cpp)
+    educnn.cpp)
 
 set(HEADERS ${HEADERS}
     common.h
