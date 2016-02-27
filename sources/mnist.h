@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "common.h"
+#include "directories.h"
 
 namespace mnist {
 
@@ -17,11 +18,6 @@ namespace mnist {
 // -----------------------------------------------------------------------------
 
 namespace {
-
-const std::string train_image_file = "../../data/train-images.idx3-ubyte";
-const std::string train_label_file = "../../data/train-labels.idx1-ubyte";
-const std::string test_image_file  = "../../data/t10k-images.idx3-ubyte";
-const std::string test_label_file  = "../../data/t10k-labels.idx1-ubyte";
 
 int big_endian(unsigned char* b) {
     int ret = 0;

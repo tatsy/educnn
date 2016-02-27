@@ -1,20 +1,7 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <memory>
-#include <algorithm>
-
-#include <cmath>
+#include <cstdio>
 #include <ctime>
-#include <cstring>
 
-#include "mnist.h"
-#include "network.h"
-#include "convolution_layer.h"
-#include "max_pooling_layer.h"
-#include "average_pooling_layer.h"
-#include "fully_connected_layer.h"
+#include "educnn.h"
 
 int main(int argc, char** argv) {
     Matrix train_data = mnist::train_data();
