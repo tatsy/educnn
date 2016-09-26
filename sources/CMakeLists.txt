@@ -1,4 +1,4 @@
-configure_file(directories.in.h
+configure_file(directories.h.in
                ${CMAKE_CURRENT_LIST_DIR}/directories.h
                @ONLY)
 
