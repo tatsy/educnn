@@ -183,8 +183,8 @@ private:
     };
 
     // Private parameters
-    static const int UNCONNECTED = 0;
-    static const int CONNECTED = 1;
+    static const int UNCONNECTED;
+    static const int CONNECTED;
 
     Random* rng_ = nullptr;
     Size input_size_ = {};
@@ -202,5 +202,9 @@ private:
     std::vector<Matrix> dkernels = {};
     std::vector<double> dbias = {};
 };
+
+// Initialize static const members.
+const int ConvolutionLayer::UNCONNECTED = 0;
+const int ConvolutionLayer::CONNECTED = 1;
 
 #endif  // _CONVOLUTION_LAYER_H_
