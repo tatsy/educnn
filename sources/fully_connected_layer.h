@@ -16,55 +16,53 @@ public:
         : AbstractLayer() {
     }
 
-    FullyConnectedLayer(Random* rng, int input_size, int output_size)
+    FullyConnectedLayer(int input_size, int output_size)
         : AbstractLayer()
-        , rng_(rng)
         , input_size_(input_size)
         , output_size_(output_size)
         , W(output_size, input_size)
-        , b(output_size, 1)
+        , b(1, output_size)
         , dW(output_size, input_size)
-        , db(output_size, 1) {
+        , db(1, output_size) {
+
+        Random &rng = Random::getInstance();
         for (int i = 0; i < output_size; i++) {
             for (int j = 0; j < input_size; j++) {
-                W(i, j) = rng->normal() * 0.1;
+                W(i, j) = rng.normal() * 0.1;
                 dW(i, j) = 0.0;
             }
-            b(i, 0) = 0.0;
-            db(i, 0) = 0.0;
+            b(0, i) = 0.0;
+            db(0, i) = 0.0;
         }
     }
-
 
     virtual ~FullyConnectedLayer() {}
 
     const Matrix& forward_propagation(const Matrix& input) override {
-        const int n_data = input.cols();
+        const int batchsize = input.rows();
         input_ = input;
-        output_ = sigmoid(W * input + b.replicate(1, n_data));
+        output_ = input * W.transpose() + b.replicate(batchsize, 1);
         return output_;
     }
 
-    Matrix back_propagation(const Matrix& err, double eta = 0.1,
+    Matrix back_propagation(const Matrix& dLdy, double eta = 0.1,
                             double momentum = 0.5) override {
-        const int n_data = err.cols();
-        Matrix delta = err.cwiseProduct(sigmoid_deriv(output_));
-        Matrix prev_err = W.transpose() * delta;
+        const int batchsize = dLdy.rows();
+        const Matrix dLdx = dLdy * W;
 
-        Matrix current_dW = delta * input_.transpose() / n_data;
-        Matrix current_db = delta.rowwise().mean();
+        const Matrix current_dW = dLdy.transpose() * input_ / batchsize;
+        const Matrix current_db = dLdy.colwise().mean();
         dW = momentum * dW + eta * current_dW;
         db = momentum * db + eta * current_db;
 
-        W += dW;
-        b += db;
+        W -= dW;
+        b -= db;
 
-        return std::move(prev_err);
+        return dLdx;
     }
 
 private:
     // Private parameters
-    Random* rng_ = nullptr;
     int input_size_ = 0;
     int output_size_ = 0;
 

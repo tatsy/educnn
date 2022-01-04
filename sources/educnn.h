@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "mnist.h"
 #include "network.h"
+#include "losses.h"
 #include "convolution_layer.h"
 #include "max_pooling_layer.h"
 #include "average_pooling_layer.h"

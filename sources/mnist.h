@@ -28,58 +28,63 @@ int big_endian(unsigned char* b) {
 }
 
 Matrix load_data(const std::string& filename) {
-    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
-    if (!ifs.is_open()) {
-        std::cerr << "Failed to open train data!!" << std::endl;
+    std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
+    if (reader.fail()) {
+        std::cerr << "Failed to open data: " << filename << std::endl;
         exit(1);
     }
 
     unsigned char b[4];
-    ifs.read((char*)b, sizeof(char) * 4);
+    reader.read((char*)b, sizeof(char) * 4);
 
-    ifs.read((char*)b, sizeof(char) * 4);
-    int nimg = big_endian(b);
+    reader.read((char*)b, sizeof(char) * 4);
+    const int n_image = big_endian(b);
 
-    ifs.read((char*)b, sizeof(char) * 4);
-    int rows = big_endian(b);
+    reader.read((char*)b, sizeof(char) * 4);
+    const int rows = big_endian(b);
 
-    ifs.read((char*)b, sizeof(char) * 4);
-    int cols = big_endian(b);
+    reader.read((char*)b, sizeof(char) * 4);
+    const int cols = big_endian(b);
 
-    unsigned char* buf = new unsigned char[rows * cols];
-    Matrix ret(rows * cols, nimg);
-    for (int j = 0; j < nimg; j++) {
-        ifs.read((char*)buf, sizeof(char) * rows * cols);
-        for (int i = 0; i < rows * cols; i++) {
-            ret(i, j) = buf[i] / 255.0;
+    uint8_t* buf = new uint8_t[rows * cols];
+    Matrix ret(n_image, rows * cols);
+    for (int i = 0; i < n_image; i++) {
+        reader.read((char*)buf, sizeof(char) * rows * cols);
+        for (int j = 0; j < rows * cols; j++) {
+            ret(i, j) = buf[j] / 255.0;
         }
     }
     delete[] buf;
 
-    ifs.close();
+    reader.close();
 
-    return std::move(ret);
+    return ret;
 }
 
 Matrix load_label(const std::string& filename) {
-    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
-
-    unsigned char b[4];
-    ifs.read((char*)b, sizeof(char) * 4);
-
-    ifs.read((char*)b, sizeof(char) * 4);
-    int nimg = big_endian(b);
-
-    Matrix ret(10, nimg);
-    for (int i = 0; i < nimg; i++) {
-        char digit;
-        ifs.read((char*)&digit, sizeof(char));
-        ret(digit, i) = 1.0;
+    std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
+    if (reader.fail()) {
+        std::cerr << "Failed to open labels: " << filename << std::endl;
+        exit(1);
     }
 
-    ifs.close();
+    unsigned char b[4];
+    reader.read((char*)b, sizeof(char) * 4);
 
-    return std::move(ret);
+    reader.read((char*)b, sizeof(char) * 4);
+    const int n_image = big_endian(b);
+
+    Matrix ret(n_image, 10);
+    ret.setZero();
+    for (int i = 0; i < n_image; i++) {
+        char digit;
+        reader.read((char*)&digit, sizeof(char));
+        ret(i, digit) = 1.0;
+    }
+
+    reader.close();
+
+    return ret;
 }
 
 }  // anonymous namespace
@@ -89,19 +94,19 @@ Matrix load_label(const std::string& filename) {
 // -----------------------------------------------------------------------------
 
 Matrix train_data() {
-    return std::move(load_data(train_image_file));
+    return load_data(train_image_file);
 }
 
-Matrix train_label() {
-    return std::move(load_label(train_label_file));
+Matrix train_labels() {
+    return load_label(train_label_file);
 }
 
 Matrix test_data() {
-    return std::move(load_data(test_image_file));
+    return load_data(test_image_file);
 }
 
-Matrix test_label() {
-    return std::move(load_label(test_label_file));
+Matrix test_labels() {
+    return load_label(test_label_file);
 }
 
 }  // namespace mnist

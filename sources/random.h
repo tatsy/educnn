@@ -6,31 +6,26 @@
 #define _RANDOM_H_
 
 #include <cmath>
+#include <ctime>
+#include <algorithm>
 
 #include "common.h"
 
-/** Random number generator with XOR shift.
+/**
+ * Random number generator with XOR shift.
  */
-class Random {
-private:
-    unsigned int seed_[4];
-    const float coefficient_;
-    const float coefficient2_;
-
+class Random : private Uncopyable {
 public:
-
-    Random(const unsigned int initial_seed) :
-        coefficient_(1.0f / UINT_MAX), coefficient2_(1.0f / 16777216.0f) {
-        unsigned int s = initial_seed;
-        for (int i = 1; i <= 4; i++) {
-            seed_[i - 1] = s = 1812433253U * (s ^ (s >> 30)) + i;
-        }
+    static Random& getInstance() {
+        unsigned int seed = time(0);
+        static Random instance(seed);
+        return instance;
     }
 
     ~Random() {
     }
 
-    unsigned int nextInt(void) {
+    unsigned int nextInt() {
         const unsigned int t = seed_[0] ^ (seed_[0] << 11);
         seed_[0] = seed_[1];
         seed_[1] = seed_[2];
@@ -38,6 +33,13 @@ public:
         return seed_[3] = (seed_[3] ^ (seed_[3] >> 19)) ^ (t ^ (t >> 8));
     }
 
+    //! Sample integer from [a, b]
+    unsigned int nextInt(unsigned int a, unsigned int b) {
+        unsigned int v = (unsigned int)(nextReal() * (b - a + 1) + a);
+        return std::min(v, b);
+    }
+
+    //! Sample number from [0, 1]
     double nextReal() {
         return (double)nextInt() * coefficient_;
     }
@@ -48,6 +50,20 @@ public:
         return sqrt(-2.0 * log(r1)) * sin(2.0 * PI * r2);
     }
 
+private:
+    Random(unsigned int seed)
+        : seed_{}
+        , coefficient_(1.0f / UINT_MAX)
+        , coefficient2_(1.0f / 16777216.0f) {
+        unsigned int s = seed;
+        for (int i = 1; i <= 4; i++) {
+            seed_[i - 1] = s = 1812433253U * (s ^ (s >> 30)) + i;
+        }
+    }
+
+    unsigned int seed_[4];
+    const float coefficient_;
+    const float coefficient2_;
 };
 
 #endif  // _RANDOM_H_

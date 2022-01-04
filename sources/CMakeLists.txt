@@ -6,8 +6,11 @@ set(EDUCNN_HEADERS ${EDUCNN_HEADERS}
     educnn.h
     common.h
     timer.h
+    progress.h
     directories.h
+    openmp.h
     activation.h
+    losses.h
     mnist.h
     random.h
     network.h
@@ -27,5 +30,5 @@ function(BUILD_TEST_PROGRAM TEST_FILE BUILD_NAME)
   endif()
 endfunction()
 
-build_test_program(test_neural.cpp test_neural)
-build_test_program(test_lecun.cpp test_lecun)
+build_test_program(test_mlp.cpp test_mlp)
+build_test_program(test_cnn.cpp test_lecun)

@@ -52,12 +52,12 @@ public:
 double check(const Matrix& m1, const Matrix& m2) {
     Matrix::Index i1, i2;
     double ret = 0.0;
-    for (int j = 0; j < m1.cols(); j++) {
-        m1.col(j).maxCoeff(&i1);
-        m2.col(j).maxCoeff(&i2);
+    for (int i = 0; i < m1.rows(); i++) {
+        m1.row(i).maxCoeff(&i1);
+        m2.row(i).maxCoeff(&i2);
         ret += i1 == i2 ? 1.0 : 0.0;
     }
-    return 100.0 * ret / m1.cols();
+    return 100.0 * ret / m1.rows();
 }
 
 // -----------------------------------------------------------------------------
