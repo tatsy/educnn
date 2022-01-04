@@ -16,18 +16,18 @@ $ unzip -qq eigen-3.2.7.zip -d $YOUR_EIGEN_DIR
 # Build educnn
 $ git clone https://github.com/tatsy/educnn.git
 $ mkdir build && cd build
-$ cmake -D EIGEN3_INCLUDE_DIR=$YOUR_EIGEN_DIR ..
+$ cmake -D EIGEN3_DIR=$YOUR_EIGEN_DIR ..
 ```
 
 ## Run
 
 ```shell
-# Run ordinary neural network (2 fully-connected layers)
-$ ./test_neural
+# Run ordinary multilayer perceptron (2 fully-connected layers)
+$ ./test_mlp
 
-# Run LeCun Net
+# Run CNN
 # Convolution -> Maxpooling -> Convolution -> Maxpooling -> FC -> FC
-$ ./test_lecun
+$ ./test_cnn
 ```
 
 ## Acknowledgments
@@ -39,4 +39,4 @@ The author sincerely appropriates for the following websites with fruitful infor
 
 ## Copyright
 
-MIT License 2015 (c) Tatsuya Yatagawa (tatsy)
+MIT License 2015-2022 (c) Tatsuya Yatagawa (tatsy)
