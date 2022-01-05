@@ -1,6 +1,6 @@
 #ifdef _MSC_VER
 #pragma once
-#endif 
+#endif
 
 #ifndef PROGRESS_H
 #define PROGRESS_H
@@ -12,13 +12,29 @@
 
 class ProgressBar {
 public:
-    ProgressBar() {}
+    ProgressBar() {
+    }
     ProgressBar(int total) {
         m_step = 0;
         m_total = total;
         start = std::chrono::system_clock::now();
     }
-    virtual ~ProgressBar() {}
+    virtual ~ProgressBar() {
+    }
+
+    void setWidth(int width) {
+        m_width = width;
+    }
+
+    template <typename... Args>
+    void setDescription(const char *format, const Args &...args) {
+        const int len = snprintf(NULL, 0, format, args...);
+
+        char *buf = new char[len];
+        snprintf(buf, len, format, args...);
+        m_description = std::string(buf);
+        delete[] buf;
+    }
 
     void step(int n = 1) {
         m_step += n;
@@ -46,9 +62,9 @@ public:
             pbar += std::string(m_width - tick - 1, ' ');
         }
 
-        if (m_step == m_total || m_step % (m_total / 1000) == 0) {
-            printf("\r[%3d%%]|%s| %d/%d [%02d:%02d<%02d:%02d, %sit/s]", (int)percent, pbar.c_str(), m_step, m_total,
-                   n_min, n_sec, r_min, r_sec, it_text.c_str());
+        if (m_step == m_total || m_step % std::max(1, m_total / 1000) == 0) {
+            printf("\r%s[%3d%%]|%s| %d/%d [%02d:%02d<%02d:%02d, %sit/s]", m_description.c_str(), (int)percent,
+                   pbar.c_str(), m_step, m_total, n_min, n_sec, r_min, r_sec, it_text.c_str());
         }
 
         if (m_step == m_total) {
@@ -63,8 +79,9 @@ public:
     }
 
 private:
-    const int m_width = 40;
+    int m_width = 40;
     int m_step, m_total;
+    std::string m_description = "";
     std::chrono::system_clock::time_point start;
 };
 

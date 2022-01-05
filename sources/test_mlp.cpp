@@ -20,15 +20,15 @@ int main(int argc, char** argv) {
     Timer timer;
     timer.start();
     network.train(train_data, train_labels, 6, 128, 1.0e-2, 0.1);
-    printf("Time: %f sec\n", timer.stop());
+    printf("Time: %.2f sec\n", timer.stop());
 
     Matrix test_data = mnist::test_data();
     Matrix test_labels = mnist::test_labels();
 
     Matrix pred = network.predict(test_data);
 
-    double ratio = check(pred, test_labels);
-    printf("Ratio: %f %%\n", ratio);
+    const double acc = accuracy(pred, test_labels);
+    printf("Acc: %6.2f %%\n", acc);
 
     for (int i = 0; i < layers.size(); i++) {
         delete layers[i];

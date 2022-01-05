@@ -16,9 +16,8 @@
  */
 class Random : private Uncopyable {
 public:
-    static Random& getInstance() {
-        unsigned int seed = time(0);
-        static Random instance(seed);
+    static Random &getInstance() {
+        static Random instance((unsigned int)time(0));
         return instance;
     }
 

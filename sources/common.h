@@ -19,7 +19,7 @@ const double INFTY = 1.0e20;
 struct Size {
     Size() {
     }
-    
+
     Size(int rows_, int cols_)
         : rows(rows_)
         , cols(cols_) {
@@ -39,17 +39,19 @@ struct Size {
  */
 class Uncopyable {
 public:
-    Uncopyable() {}
-    ~Uncopyable() {}
+    Uncopyable() {
+    }
+    ~Uncopyable() {
+    }
 
-    Uncopyable(const Uncopyable&) = delete;
-    Uncopyable& operator=(const Uncopyable&) = delete;
+    Uncopyable(const Uncopyable &) = delete;
+    Uncopyable &operator=(const Uncopyable &) = delete;
 };
 
 /**
  * Check function
  */
-double check(const Matrix& m1, const Matrix& m2) {
+double accuracy(const Matrix &m1, const Matrix &m2) {
     Matrix::Index i1, i2;
     double ret = 0.0;
     for (int i = 0; i < m1.rows(); i++) {
@@ -74,21 +76,21 @@ double check(const Matrix& m1, const Matrix& m2) {
 
 #undef NDEBUG
 #ifndef NDEBUG
-#define Assertion(PREDICATE, ...) \
-do { \
-    if (!(PREDICATE)) { \
-        std::cerr << "Asssertion \"" \
-        << #PREDICATE << "\" failed in " << __FILE__ \
-        << " line " << __LINE__ \
-        << " in function \"" << (__FUNCTION_NAME__) << "\"" \
-        << " : "; \
-        fprintf(stderr, __VA_ARGS__); \
-        std::cerr << std::endl; \
-        std::abort(); \
-    } \
-} while (false)
+#define Assertion(PREDICATE, ...)                                                                             \
+    do {                                                                                                      \
+        if (!(PREDICATE)) {                                                                                   \
+            std::cerr << "Asssertion \"" << #PREDICATE << "\" failed in " << __FILE__ << " line " << __LINE__ \
+                      << " in function \"" << (__FUNCTION_NAME__) << "\""                                     \
+                      << " : ";                                                                               \
+            fprintf(stderr, __VA_ARGS__);                                                                     \
+            std::cerr << std::endl;                                                                           \
+            std::abort();                                                                                     \
+        }                                                                                                     \
+    } while (false)
 #else  // NDEBUG
-#define Assertion(PREDICATE, MSG) do {} while (false)
+#define Assertion(PREDICATE, MSG) \
+    do {                          \
+    } while (false)
 #endif  // NDEBUG
 
 #endif  // _COMMON_H_

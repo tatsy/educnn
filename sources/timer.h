@@ -29,8 +29,7 @@ class Timer {
 public:
     Timer()
         : _start()
-        , _end()
-    {
+        , _end() {
     }
 
     void start() {

@@ -10,11 +10,13 @@
  */
 class AbstractLoss : private Uncopyable {
 public:
-    AbstractLoss() {}
-    virtual ~AbstractLoss() {}
+    AbstractLoss() {
+    }
+    virtual ~AbstractLoss() {
+    }
 
-    virtual const Matrix& forward_propagation(const Matrix& pred, const Matrix &real) = 0;
-    virtual Matrix back_propagation() = 0;
+    virtual const Matrix &forward(const Matrix &pred, const Matrix &real) = 0;
+    virtual Matrix backward() = 0;
 
 protected:
     Matrix input_ = {};
@@ -27,10 +29,12 @@ protected:
  */
 class CrossEntropyLoss : public AbstractLoss {
 public:
-    CrossEntropyLoss() {}
-    virtual ~CrossEntropyLoss() {}
+    CrossEntropyLoss() {
+    }
+    virtual ~CrossEntropyLoss() {
+    }
 
-    const Matrix& forward_propagation(const Matrix &input, const Matrix &target) override {
+    const Matrix &forward(const Matrix &input, const Matrix &target) override {
         const Matrix prod = -target.cwiseProduct(input.array().log().matrix());
         input_ = input;
         target_ = target;
@@ -38,7 +42,7 @@ public:
         return output_;
     }
 
-    Matrix back_propagation() override {
+    Matrix backward() override {
         return -target_.cwiseQuotient(input_);
     }
 };
@@ -48,10 +52,12 @@ public:
  */
 class NLLLoss : public AbstractLoss {
 public:
-    NLLLoss() {}
-    virtual ~NLLLoss() {}
+    NLLLoss() {
+    }
+    virtual ~NLLLoss() {
+    }
 
-    const Matrix& forward_propagation(const Matrix &input, const Matrix &target) override {
+    const Matrix &forward(const Matrix &input, const Matrix &target) override {
         const Matrix prod = -target.cwiseProduct(input);
         input_ = input;
         target_ = target;
@@ -59,7 +65,7 @@ public:
         return output_;
     }
 
-    Matrix back_propagation() override {
+    Matrix backward() override {
         return -target_;
     }
 };

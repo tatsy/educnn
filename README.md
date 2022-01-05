@@ -3,31 +3,23 @@ educnn
 
 > The simple implementation of CNN (convolutional neural network).
 
-## Build
+## Build & Run
 
 For building the project, you need [Eigen](http://eigen.tuxfamily.org/index.php) (Version 3.0 or higher).
 
 ```shell
 # Setup Eigen:
 # (The version here is 3.2.7, but you can specify any versions higher than 3.0.0)
-$ wget -O eigen-3.2.7.zip http://bitbucket.org/eigen/eigen/get/3.2.7.zip
-$ unzip -qq eigen-3.2.7.zip -d $YOUR_EIGEN_DIR
+wget -O eigen-3.2.7.zip http://bitbucket.org/eigen/eigen/get/3.2.7.zip
+unzip -qq eigen-3.2.7.zip -d $YOUR_EIGEN_DIR
 
 # Build educnn
-$ git clone https://github.com/tatsy/educnn.git
-$ mkdir build && cd build
-$ cmake -D EIGEN3_DIR=$YOUR_EIGEN_DIR ..
-```
+git clone https://github.com/tatsy/educnn.git
+mkdir build && cd build
+cmake -D EIGEN3_DIR=$YOUR_EIGEN_DIR ..
 
-## Run
-
-```shell
-# Run ordinary multilayer perceptron (2 fully-connected layers)
-$ ./test_mlp
-
-# Run CNN
-# Convolution -> Maxpooling -> Convolution -> Maxpooling -> FC -> FC
-$ ./test_cnn
+# Run
+./bin/educnn
 ```
 
 ## Acknowledgments

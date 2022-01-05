@@ -19,7 +19,7 @@ namespace mnist {
 
 namespace {
 
-int big_endian(unsigned char* b) {
+int big_endian(unsigned char *b) {
     int ret = 0;
     for (int i = 0; i < 4; i++) {
         ret = (ret << 8) | b[i];
@@ -27,7 +27,7 @@ int big_endian(unsigned char* b) {
     return ret;
 }
 
-Matrix load_data(const std::string& filename) {
+Matrix load_data(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open data: " << filename << std::endl;
@@ -35,21 +35,21 @@ Matrix load_data(const std::string& filename) {
     }
 
     unsigned char b[4];
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
 
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
     const int n_image = big_endian(b);
 
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
     const int rows = big_endian(b);
 
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
     const int cols = big_endian(b);
 
-    uint8_t* buf = new uint8_t[rows * cols];
+    uint8_t *buf = new uint8_t[rows * cols];
     Matrix ret(n_image, rows * cols);
     for (int i = 0; i < n_image; i++) {
-        reader.read((char*)buf, sizeof(char) * rows * cols);
+        reader.read((char *)buf, sizeof(char) * rows * cols);
         for (int j = 0; j < rows * cols; j++) {
             ret(i, j) = buf[j] / 255.0;
         }
@@ -61,7 +61,7 @@ Matrix load_data(const std::string& filename) {
     return ret;
 }
 
-Matrix load_label(const std::string& filename) {
+Matrix load_label(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open labels: " << filename << std::endl;
@@ -69,16 +69,16 @@ Matrix load_label(const std::string& filename) {
     }
 
     unsigned char b[4];
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
 
-    reader.read((char*)b, sizeof(char) * 4);
+    reader.read((char *)b, sizeof(char) * 4);
     const int n_image = big_endian(b);
 
     Matrix ret(n_image, 10);
     ret.setZero();
     for (int i = 0; i < n_image; i++) {
         char digit;
-        reader.read((char*)&digit, sizeof(char));
+        reader.read((char *)&digit, sizeof(char));
         ret(i, digit) = 1.0;
     }
 

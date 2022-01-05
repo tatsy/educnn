@@ -2,7 +2,8 @@ configure_file(directories.h.in
                ${CMAKE_CURRENT_LIST_DIR}/directories.h
                @ONLY)
 
-set(EDUCNN_HEADERS ${EDUCNN_HEADERS}
+set(EDUCNN_SOURCES
+    main.cpp
     educnn.h
     common.h
     timer.h
@@ -20,15 +21,10 @@ set(EDUCNN_HEADERS ${EDUCNN_HEADERS}
     max_pooling_layer.h
     average_pooling_layer.h)
 
-function(BUILD_TEST_PROGRAM TEST_FILE BUILD_NAME)
-  add_executable(${BUILD_NAME} ${TEST_FILE} ${EDUCNN_HEADERS})
-  source_group("Source Files" FILES ${TEST_FILE} ${EDUCNN_HEADERS})
+add_executable(educnn ${EDUCNN_SOURCES})
+source_group("Source Files" FILES ${EDUCNN_SOURCES})
 
-  if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
-    set_property(TARGET ${BUILD_NAME} APPEND PROPERTY LINK_FLAGS "/DEBUG /PROFILE")
-  endif()
-endfunction()
-
-build_test_program(test_mlp.cpp test_mlp)
-build_test_program(test_cnn.cpp test_lecun)
+if (MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
+  set_property(TARGET ${BUILD_NAME} APPEND PROPERTY LINK_FLAGS "/DEBUG /PROFILE /INCREMENTAL:NO")
+endif()

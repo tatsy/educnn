@@ -12,31 +12,32 @@
  */
 class ReLU : public AbstractLayer {
 public:
-     // Public methods
-     ReLU()
-         : AbstractLayer() {
-     }
+    // Public methods
+    ReLU()
+        : AbstractLayer() {
+    }
 
-     virtual ~ReLU() {}
+    virtual ~ReLU() {
+    }
 
-     const Matrix& forward_propagation(const Matrix& input) override {
-         input_ = input;
-         output_ = input.cwiseMax(0.0);
-         return output_;
-     }
+    const Matrix &forward(const Matrix &input) override {
+        input_ = input;
+        output_ = input.cwiseMax(0.0);
+        return output_;
+    }
 
-     Matrix back_propagation(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
-         Matrix dLdx(input_.rows(), input_.cols());
-         dLdx.setZero();
-         for (int b = 0; b < input_.rows(); b++) {
+    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+        Matrix dLdx(input_.rows(), input_.cols());
+        dLdx.setZero();
+        for (int b = 0; b < input_.rows(); b++) {
             for (int i = 0; i < input_.cols(); i++) {
                 if (input_(b, i) >= 0.0) {
                     dLdx(b, i) = dLdy(b, i);
                 }
             }
-         }
-         return dLdx;
-     }
+        }
+        return dLdx;
+    }
 };
 
 /**
@@ -44,23 +45,24 @@ public:
  */
 class Sigmoid : public AbstractLayer {
 public:
-     // Public methods
-     Sigmoid()
-         : AbstractLayer() {
-     }
+    // Public methods
+    Sigmoid()
+        : AbstractLayer() {
+    }
 
-     virtual ~Sigmoid() {}
+    virtual ~Sigmoid() {
+    }
 
-     const Matrix& forward_propagation(const Matrix& input) override {
-         input_ = input;
-         output_ = 1.0 / (1.0 + (-input).array().exp());
-         return output_;
-     }
+    const Matrix &forward(const Matrix &input) override {
+        input_ = input;
+        output_ = 1.0 / (1.0 + (-input).array().exp());
+        return output_;
+    }
 
-     Matrix back_propagation(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
-         const Matrix dydx = output_.array() * (1.0 - output_.array());
-         return dLdy.cwiseProduct(dydx);
-     }
+    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+        const Matrix dydx = output_.array() * (1.0 - output_.array());
+        return dLdy.cwiseProduct(dydx);
+    }
 };
 
 /**
@@ -72,10 +74,11 @@ public:
     Softmax() {
     }
 
-    virtual ~Softmax() {}
+    virtual ~Softmax() {
+    }
 
-    const Matrix& forward_propagation(const Matrix& input) override {
-        const int dims = input.cols();
+    const Matrix &forward(const Matrix &input) override {
+        const int dims = (int)input.cols();
         input_ = input;
         const Matrix cwiseMax = input.rowwise().maxCoeff().replicate(1, dims);
         const Matrix normalized = input.cwiseQuotient(cwiseMax);
@@ -85,9 +88,9 @@ public:
         return output_;
     }
 
-    Matrix back_propagation(const Matrix& dLdy, double eta = 0.1, double momentum = 0.5) override {
-        const int batchsize = dLdy.rows();
-        const int dims = dLdy.cols();
+    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+        const int batchsize = (int)dLdy.rows();
+        const int dims = (int)dLdy.cols();
 
         Matrix dLdx(batchsize, dims);
         for (int b = 0; b < batchsize; b++) {
@@ -100,7 +103,7 @@ public:
                     } else {
                         m = -output_(b, i) * output_(b, j);
                     }
-                    dLdx(b, i) += dLdy(b, j) * m;                    
+                    dLdx(b, i) += dLdy(b, j) * m;
                 }
             }
         }
@@ -118,10 +121,11 @@ public:
     LogSoftmax() {
     }
 
-    virtual ~LogSoftmax() {}
+    virtual ~LogSoftmax() {
+    }
 
-    const Matrix& forward_propagation(const Matrix& input) override {
-        const int dims = input.cols();
+    const Matrix &forward(const Matrix &input) override {
+        const int dims = (int)input.cols();
         input_ = input;
         const Matrix cwiseMax = input.rowwise().maxCoeff().replicate(1, dims);
         const Matrix diff = input - cwiseMax;
@@ -131,9 +135,9 @@ public:
         return output_;
     }
 
-    Matrix back_propagation(const Matrix& dLdy, double eta = 0.1, double momentum = 0.5) override {
-        const int batchsize = dLdy.rows();
-        const int dims = dLdy.cols();
+    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+        const int batchsize = (int)dLdy.rows();
+        const int dims = (int)dLdy.cols();
 
         Matrix dLdx(batchsize, dims);
         for (int b = 0; b < batchsize; b++) {
@@ -146,7 +150,7 @@ public:
                     } else {
                         m = -exp(output_(b, i));
                     }
-                    dLdx(b, i) += dLdy(b, j) * m;                    
+                    dLdx(b, i) += dLdy(b, j) * m;
                 }
             }
         }
