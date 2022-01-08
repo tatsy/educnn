@@ -11,43 +11,63 @@
 #include "common.h"
 #include "directories.h"
 
-namespace mnist {
-
 // -----------------------------------------------------------------------------
 // MNIST utility function definitions
 // -----------------------------------------------------------------------------
 
 namespace {
 
-int big_endian(unsigned char *b) {
-    int ret = 0;
+/**
+ * Convert integer from little endian to big endian
+ * リトルエンディアンとビッグエンディアンの相互変換
+ */
+inline uint32_t change_endian(uint32_t x) {
+    uint32_t ret = 0;
     for (int i = 0; i < 4; i++) {
-        ret = (ret << 8) | b[i];
+        ret = (ret << 8) | (x & 0xff);
+        x >>= 8;
     }
     return ret;
 }
 
-Matrix load_data(const std::string &filename) {
+/**
+ * Load image data
+ * 画像データの読み込み
+ */
+Matrix load_images(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open data: " << filename << std::endl;
         exit(1);
     }
 
-    unsigned char b[4];
-    reader.read((char *)b, sizeof(char) * 4);
+    uint32_t temp;
 
-    reader.read((char *)b, sizeof(char) * 4);
-    const int n_image = big_endian(b);
+    // read magic number
+    // マジックナンバーの読み込み
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int magic = change_endian(temp);
+    Assertion(magic == 2051, "Invalid magic number!");
 
-    reader.read((char *)b, sizeof(char) * 4);
-    const int rows = big_endian(b);
+    // read number of data
+    // データの数の読み込み
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int n_image = change_endian(temp);
 
-    reader.read((char *)b, sizeof(char) * 4);
-    const int cols = big_endian(b);
+    // read image height (# of rows)
+    // 画像の高さ(行数)を読む
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int rows = change_endian(temp);
 
+    // read image width (# of columns)
+    // 画像の幅(列数)を読む
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int cols = change_endian(temp);
+
+    // read pixel values
+    // 画像の画素値を読む
     uint8_t *buf = new uint8_t[rows * cols];
-    Matrix ret(n_image, rows * cols);
+    Matrix ret = Matrix::Zero(n_image, rows * cols);
     for (int i = 0; i < n_image; i++) {
         reader.read((char *)buf, sizeof(char) * rows * cols);
         for (int j = 0; j < rows * cols; j++) {
@@ -61,21 +81,33 @@ Matrix load_data(const std::string &filename) {
     return ret;
 }
 
-Matrix load_label(const std::string &filename) {
+/**
+ * Load label data
+ * ラベルデータの読み込み
+ */
+Matrix load_labels(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open labels: " << filename << std::endl;
         exit(1);
     }
 
-    unsigned char b[4];
-    reader.read((char *)b, sizeof(char) * 4);
+    uint32_t temp;
 
-    reader.read((char *)b, sizeof(char) * 4);
-    const int n_image = big_endian(b);
+    // read magic number
+    // マジックナンバーの読み込み
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int magic = change_endian(temp);
+    Assertion(magic == 2049, "Invalid magic number!");
 
-    Matrix ret(n_image, 10);
-    ret.setZero();
+    // read number of labes
+    // ラベル数の読み込み
+    reader.read((char *)&temp, sizeof(char) * 4);
+    const int n_image = change_endian(temp);
+
+    // read label index and convert it to one-hot vector
+    // ラベル番号を読み取ってone-hotベクトルに変換する
+    Matrix ret = Matrix::Zero(n_image, 10);
     for (int i = 0; i < n_image; i++) {
         char digit;
         reader.read((char *)&digit, sizeof(char));
@@ -93,20 +125,38 @@ Matrix load_label(const std::string &filename) {
 // MNIST parser definitions
 // -----------------------------------------------------------------------------
 
-Matrix train_data() {
-    return load_data(train_image_file);
+namespace mnist {
+
+/**
+ * Load train images
+ * 訓練画像の読み込み
+ */
+Matrix train_images() {
+    return load_images(train_image_file);
 }
 
+/**
+ * Load train labels
+ * 訓練ラベルの読み込み
+ */
 Matrix train_labels() {
-    return load_label(train_label_file);
+    return load_labels(train_label_file);
 }
 
-Matrix test_data() {
-    return load_data(test_image_file);
+/**
+ * Load test images
+ * テスト用画像の読み込み
+ */
+Matrix test_images() {
+    return load_images(test_image_file);
 }
 
+/**
+ * Load test labels
+ * テスト用ラベルの読み込み
+ */
 Matrix test_labels() {
-    return load_label(test_label_file);
+    return load_labels(test_label_file);
 }
 
 }  // namespace mnist

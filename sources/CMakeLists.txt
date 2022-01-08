@@ -23,6 +23,7 @@ set(EDUCNN_SOURCES
 
 add_executable(educnn ${EDUCNN_SOURCES})
 source_group("Source Files" FILES ${EDUCNN_SOURCES})
+set_target_properties(educnn PROPERTIES DEBUG_POSTFIX "-debug")
 
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")

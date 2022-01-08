@@ -9,32 +9,32 @@ int main(int argc, char **argv) {
     const int batchsize = 64;
 
     // Train data
-    Matrix train_data = mnist::train_data();
+    Matrix train_data = mnist::train_images();
     Matrix train_labels = mnist::train_labels();
     const double eta = 1.0e-2;  // step size
     const double lambda = 0.1;  // momentum
 
     // MLP
-    //std::vector<std::shared_ptr<AbstractLayer>> layers;
-    //layers.emplace_back(new FullyConnectedLayer(784, 300));
-    //layers.emplace_back(new Sigmoid());
-    //layers.emplace_back(new FullyConnectedLayer(300, 10));
-    //layers.emplace_back(new LogSoftmax());
-    //Network network(layers);
-
-    // CNN
     std::vector<std::shared_ptr<AbstractLayer>> layers;
-    layers.emplace_back(new ConvolutionLayer(Size(28, 28), Size(5, 5), 1, 6));
-    layers.emplace_back(new MaxPoolingLayer(Size(24, 24), Size(2, 2), 6));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(new ConvolutionLayer(Size(12, 12), Size(5, 5), 6, 16));
-    layers.emplace_back(new MaxPoolingLayer(Size(8, 8), Size(2, 2), 16));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(new FullyConnectedLayer(4 * 4 * 16, 84));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(new FullyConnectedLayer(84, 10));
+    layers.emplace_back(new FullyConnectedLayer(784, 300));
+    layers.emplace_back(new Sigmoid());
+    layers.emplace_back(new FullyConnectedLayer(300, 10));
     layers.emplace_back(new LogSoftmax());
     Network network(layers);
+
+    // CNN
+    // std::vector<std::shared_ptr<AbstractLayer>> layers;
+    // layers.emplace_back(new ConvolutionLayer(Size(28, 28), Size(5, 5), 1, 6));
+    // layers.emplace_back(new MaxPoolingLayer(Size(24, 24), Size(2, 2), 6));
+    // layers.emplace_back(new ReLU());
+    // layers.emplace_back(new ConvolutionLayer(Size(12, 12), Size(5, 5), 6, 16));
+    // layers.emplace_back(new MaxPoolingLayer(Size(8, 8), Size(2, 2), 16));
+    // layers.emplace_back(new ReLU());
+    // layers.emplace_back(new FullyConnectedLayer(4 * 4 * 16, 84));
+    // layers.emplace_back(new ReLU());
+    // layers.emplace_back(new FullyConnectedLayer(84, 10));
+    // layers.emplace_back(new LogSoftmax());
+    // Network network(layers);
 
     // Loss function
     auto criterion = std::make_shared<NLLLoss>();
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     printf("Time: %.2f sec\n", timer.stop());
 
     // Test
-    Matrix test_data = mnist::test_data();
+    Matrix test_data = mnist::test_images();
     Matrix test_labels = mnist::test_labels();
 
     Matrix pred = network.forward(test_data);
