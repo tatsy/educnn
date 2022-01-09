@@ -3,7 +3,21 @@
 
 #include "educnn.h"
 
+enum { MLP_NETWORK_TYPE = 0, CNN_NETWORK_TYPE, NETWORK_TYPE_COUNT };
+
 int main(int argc, char **argv) {
+    int net_type = MLP_NETWORK_TYPE;
+    if (argc > 1) {
+        if (strcmp(argv[1], "--mlp") == 0) {
+            net_type = MLP_NETWORK_TYPE;
+        } else if (strcmp(argv[1], "--cnn") == 0) {
+            net_type = CNN_NETWORK_TYPE;
+        } else {
+            fprintf(stderr, "Unknown flag \"%s\" is specified!", argv[1]);
+            exit(1);
+        }
+    }
+
     // Parameters
     const int epochs = 6;
     const int batchsize = 64;
@@ -14,27 +28,29 @@ int main(int argc, char **argv) {
     const double eta = 1.0e-2;  // step size
     const double lambda = 0.1;  // momentum
 
-    // MLP
     std::vector<std::shared_ptr<AbstractLayer>> layers;
-    layers.emplace_back(new FullyConnectedLayer(784, 300));
-    layers.emplace_back(new Sigmoid());
-    layers.emplace_back(new FullyConnectedLayer(300, 10));
-    layers.emplace_back(new LogSoftmax());
+    if (net_type == MLP_NETWORK_TYPE) {
+        // MLP
+        layers.emplace_back(new FullyConnectedLayer(784, 300));
+        layers.emplace_back(new Sigmoid());
+        layers.emplace_back(new FullyConnectedLayer(300, 10));
+        layers.emplace_back(new LogSoftmax());
+        printf("Network: MLP\n");
+    } else if (net_type == CNN_NETWORK_TYPE) {
+        // CNN
+        layers.emplace_back(new ConvolutionLayer(Size(28, 28), Size(5, 5), 1, 6));
+        layers.emplace_back(new MaxPoolingLayer(Size(24, 24), Size(2, 2), 6));
+        layers.emplace_back(new ReLU());
+        layers.emplace_back(new ConvolutionLayer(Size(12, 12), Size(5, 5), 6, 16));
+        layers.emplace_back(new MaxPoolingLayer(Size(8, 8), Size(2, 2), 16));
+        layers.emplace_back(new ReLU());
+        layers.emplace_back(new FullyConnectedLayer(4 * 4 * 16, 84));
+        layers.emplace_back(new ReLU());
+        layers.emplace_back(new FullyConnectedLayer(84, 10));
+        layers.emplace_back(new LogSoftmax());
+        printf("Network: CNN\n");
+    }
     Network network(layers);
-
-    // CNN
-    // std::vector<std::shared_ptr<AbstractLayer>> layers;
-    // layers.emplace_back(new ConvolutionLayer(Size(28, 28), Size(5, 5), 1, 6));
-    // layers.emplace_back(new MaxPoolingLayer(Size(24, 24), Size(2, 2), 6));
-    // layers.emplace_back(new ReLU());
-    // layers.emplace_back(new ConvolutionLayer(Size(12, 12), Size(5, 5), 6, 16));
-    // layers.emplace_back(new MaxPoolingLayer(Size(8, 8), Size(2, 2), 16));
-    // layers.emplace_back(new ReLU());
-    // layers.emplace_back(new FullyConnectedLayer(4 * 4 * 16, 84));
-    // layers.emplace_back(new ReLU());
-    // layers.emplace_back(new FullyConnectedLayer(84, 10));
-    // layers.emplace_back(new LogSoftmax());
-    // Network network(layers);
 
     // Loss function
     auto criterion = std::make_shared<NLLLoss>();

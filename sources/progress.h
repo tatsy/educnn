@@ -63,7 +63,7 @@ public:
         }
 
         if (m_step == m_total || m_step % std::max(1, m_total / 1000) == 0) {
-            printf("\r%s[%3d%%]|%s| %d/%d [%02d:%02d<%02d:%02d, %sit/s]", m_description.c_str(), (int)percent,
+            printf("\r%s [%3d%%]|%s| %d/%d [%02d:%02d<%02d:%02d, %sit/s]", m_description.c_str(), (int)percent,
                    pbar.c_str(), m_step, m_total, n_min, n_sec, r_min, r_sec, it_text.c_str());
         }
 
