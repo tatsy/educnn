@@ -85,9 +85,7 @@ public:
             OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
-
-#pragma omp atomic
-                    dLdx(b, edge.to) += dLdy(b, o) * W[edge.kernel_id](edge.ky, edge.kx);
+                    OMP_ATOMIC(dLdx(b, edge.to) += dLdy(b, o) * W[edge.kernel_id](edge.ky, edge.kx));
                 }
             }
         }
@@ -99,14 +97,12 @@ public:
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
 
-#pragma omp atomic
-                    current_dW[edge.kernel_id](edge.ky, edge.kx) +=
-                        dLdy(b, o) * input_(b, edge.to) / (batchsize * output_size_.total());
+                    OMP_ATOMIC(current_dW[edge.kernel_id](edge.ky, edge.kx) +=
+                               dLdy(b, o) * input_(b, edge.to) / (batchsize * output_size_.total()));
                 }
-                const int out_ch = o / output_size_.total();
 
-#pragma omp atomic
-                current_db[out_ch] += dLdy(b, o) / (batchsize * output_size_.total());
+                const int out_ch = o / output_size_.total();
+                OMP_ATOMIC(current_db[out_ch] += dLdy(b, o) / (batchsize * output_size_.total()));
             }
         }
 

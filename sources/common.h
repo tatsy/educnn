@@ -8,24 +8,28 @@
 #include <iostream>
 #include <cmath>
 #include <cassert>
+
 #include <Eigen/Core>
 
-using Matrix = Eigen::MatrixXd;
+// Declare a matrix type using Eigen
+// Eigenを用いた行列タイプの宣言
+using ScalarType = double;
+using Matrix = Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic>;
 
+// Predefined constants
+// 事前定義の定数
 const double PI = 4.0 * atan(1.0);
 const double EPS = 1.0e-20;
 const double INFTY = 1.0e20;
 
 struct Size {
-    Size() {
-    }
-
-    Size(int rows_, int cols_)
+    Size() = default;
+    explicit Size(int rows_, int cols_)
         : rows(rows_)
         , cols(cols_) {
     }
 
-    inline int total() const {
+    int total() const {
         return rows * cols;
     }
 
@@ -34,24 +38,23 @@ struct Size {
 };
 
 /**
- * The uncopyable interface class to forbid copy and assignement
- * in the derived class.
+ * The uncopyable interface class to forbid copy and assignment in the derived class.
+ * 継承先クラスをコピー不可にするためのインターフェース
  */
 class Uncopyable {
 public:
-    Uncopyable() {
-    }
-    ~Uncopyable() {
-    }
+    Uncopyable() = default;
+    ~Uncopyable() = default;
 
     Uncopyable(const Uncopyable &) = delete;
     Uncopyable &operator=(const Uncopyable &) = delete;
 };
 
 /**
- * Check function
+ * Calculate accuracy
+ * 精度計算の関数
  */
-double accuracy(const Matrix &m1, const Matrix &m2) {
+inline double accuracy(const Matrix &m1, const Matrix &m2) {
     Matrix::Index i1, i2;
     double ret = 0.0;
     for (int i = 0; i < m1.rows(); i++) {

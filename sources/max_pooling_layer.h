@@ -79,9 +79,7 @@ public:
                 }
 
                 Edge &active_e = edges_o2i[o][active_index];
-
-#pragma omp atomic
-                dLdx(b, active_e.to) += dLdy(b, o);
+                OMP_ATOMIC(dLdx(b, active_e.to) += dLdy(b, o));
             }
         }
 
