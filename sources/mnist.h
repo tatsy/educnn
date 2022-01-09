@@ -21,11 +21,10 @@ namespace {
  * Convert integer from little endian to big endian
  * リトルエンディアンとビッグエンディアンの相互変換
  */
-inline uint32_t change_endian(uint32_t x) {
+inline uint32_t parse_bigendian(uint8_t *buf) {
     uint32_t ret = 0;
     for (int i = 0; i < 4; i++) {
-        ret = (ret << 8) | (x & 0xff);
-        x >>= 8;
+        ret = (ret << 8) | buf[i];
     }
     return ret;
 }
@@ -41,28 +40,28 @@ inline Matrix load_images(const std::string &filename) {
         exit(1);
     }
 
-    uint32_t temp;
+    uint8_t temp[4];
 
     // read magic number
     // マジックナンバーの読み込み
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int magic = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int magic = parse_bigendian(temp);
     Assertion(magic == 2051, "Invalid magic number!");
 
     // read number of data
     // データの数の読み込み
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int n_image = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int n_image = parse_bigendian(temp);
 
     // read image height (# of rows)
     // 画像の高さ(行数)を読む
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int rows = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int rows = parse_bigendian(temp);
 
     // read image width (# of columns)
     // 画像の幅(列数)を読む
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int cols = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int cols = parse_bigendian(temp);
 
     // read pixel values
     // 画像の画素値を読む
@@ -92,23 +91,23 @@ inline Matrix load_labels(const std::string &filename) {
         exit(1);
     }
 
-    uint32_t temp;
+    uint8_t temp[4];
 
     // read magic number
     // マジックナンバーの読み込み
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int magic = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int magic = parse_bigendian(temp);
     Assertion(magic == 2049, "Invalid magic number!");
 
     // read number of labes
     // ラベル数の読み込み
-    reader.read((char *)&temp, sizeof(char) * 4);
-    const int n_image = change_endian(temp);
+    reader.read((char *)temp, sizeof(char) * 4);
+    const int n_data = parse_bigendian(temp);
 
     // read label index and convert it to one-hot vector
     // ラベル番号を読み取ってone-hotベクトルに変換する
-    Matrix ret = Matrix::Zero(n_image, 10);
-    for (int i = 0; i < n_image; i++) {
+    Matrix ret = Matrix::Zero(n_data, 10);
+    for (int i = 0; i < n_data; i++) {
         char digit;
         reader.read((char *)&digit, sizeof(char));
         ret(i, digit) = 1.0;
