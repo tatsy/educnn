@@ -1,0 +1,47 @@
+name: Windows CI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    tags:
+      - v*
+
+env:
+  BUILD_TYPE: Release
+  USE_OPENMP: OFF
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        openmp: [yes, no]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install Eigen3
+      run: |
+        git clone https://gitlab.com/libeigen/eigen.git -b 3.3 "$env:HOME/eigen"
+
+    - name: Setup OpenMP
+      if: ${{ matrix.openmp == 'yes' }}
+      run: $env:USE_OPENMP="ON"
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+
+    - name: CMake Build
+      run: |
+        cmake -E make_directory ${{ runner.workspace }}/build
+        cd ${{ runner.workspace }}/build
+        cmake "$env:GITHUB_WORKSPACE" `
+          -G "Visual Studio 16 2019" -A x64 `
+          -DEIGEN3_DIR="$env:HOME/eigen" `
+          -DWITH_OPENMP="$env:USE_OPENMP"
+        cmake --build . --config "$env:BUILD_TYPE"
