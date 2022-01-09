@@ -1,0 +1,79 @@
+name: Ubuntu CI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    tags:
+      - v*
+
+env:
+  BUILD_TYPE: Release
+  GNU_CC: gcc-9
+  GNU_CXX: g++-9
+  LLVM_CC: clang-11
+  LLVM_CXX: clang++-11
+  USE_OPENMP: OFF
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        USE_OPENMP: [ON, OFF]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install GNU C/C++ Compiler
+      if: ${{ matrix.compiler == 'gcc' }}
+      run: |
+        sudo apt-get install -y gcc-9 g++-9
+        export GNU_CC=gcc-9
+        export GNU_CXX=g++-9
+
+    - name: Install LLVM Clang
+      if: ${{ matrix.compiler == 'clang' }}
+      run: |
+        sudo apt-get install -y clang-10 clang++-10
+        export LLVM_CC=clang-10
+        export LLVM_CXX=clang++-10
+
+    - name: Install Eigen3
+      env:
+        C_COMPILER: ${{ matrix.compiler }}
+      run: |
+        sudo apt-get install libeigen3-dev
+
+    - name: Setup OpenMP
+      if: ${{ matrix.USE_OPENMP == 'ON' }}
+      run: export USE_OPENMP=ON
+
+    - name: CMake Build
+      env:
+        C_COMPILER: ${{ matrix.compiler }}
+      run: |
+        cmake -E make_directory ${{runner.workspace}}/build
+        cd ${{runner.workspace}}/build
+        if [ "$C_COMPILER" = "gcc" ]; then
+          cmake $GITHUB_WORKSPACE \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER=$GNU_CC \
+            -DCMAKE_CXX_COMPILER=$GNU_CXX \
+            -DEIGEN3_DIR=/usr/include/eigen3 \
+            -DWITH_OPENMP=$USE_OPENMP
+        fi
+        if [ "$C_COMPILER" = "clang" ]; then
+          cmake $GITHUB_WORKSPACE \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER=$LLVM_CC \
+            -DCMAKE_CXX_COMPILER=$LLVM_CXX \
+            -DEIGEN3_DIR=/usr/include/eigen3 \
+            -DWITH_OPENMP=$USE_OPENMP
+        fi
+        cmake --build . --config $BUILD_TYPE --parallel 2

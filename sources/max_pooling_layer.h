@@ -42,7 +42,7 @@ public:
         output_ = Matrix::Zero(batchsize, n_output);
 
         for (int b = 0; b < batchsize; b++) {
-            omp_parallel_for(int o = 0; o < n_output; o++) {
+            OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 double maxval = -INFTY;
                 int active_index = 0;
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
@@ -67,7 +67,7 @@ public:
         const int n_output = output_size_.total() * n_channels_;
         Matrix dLdx = Matrix::Zero(batchsize, n_input);
         for (int b = 0; b < batchsize; b++) {
-            omp_parallel_for(int o = 0; o < n_output; o++) {
+            OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 double maxval = -INFTY;
                 int active_index = 0;
                 for (int e = 0; e < edges_o2i[o].size(); e++) {

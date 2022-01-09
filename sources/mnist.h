@@ -34,7 +34,7 @@ inline uint32_t change_endian(uint32_t x) {
  * Load image data
  * 画像データの読み込み
  */
-Matrix load_images(const std::string &filename) {
+inline Matrix load_images(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open data: " << filename << std::endl;
@@ -85,7 +85,7 @@ Matrix load_images(const std::string &filename) {
  * Load label data
  * ラベルデータの読み込み
  */
-Matrix load_labels(const std::string &filename) {
+inline Matrix load_labels(const std::string &filename) {
     std::ifstream reader(filename.c_str(), std::ios::in | std::ios::binary);
     if (reader.fail()) {
         std::cerr << "Failed to open labels: " << filename << std::endl;
@@ -131,7 +131,7 @@ namespace mnist {
  * Load train images
  * 訓練画像の読み込み
  */
-Matrix train_images() {
+inline Matrix train_images() {
     return load_images(train_image_file);
 }
 
@@ -139,7 +139,7 @@ Matrix train_images() {
  * Load train labels
  * 訓練ラベルの読み込み
  */
-Matrix train_labels() {
+inline Matrix train_labels() {
     return load_labels(train_label_file);
 }
 
@@ -147,7 +147,7 @@ Matrix train_labels() {
  * Load test images
  * テスト用画像の読み込み
  */
-Matrix test_images() {
+inline Matrix test_images() {
     return load_images(test_image_file);
 }
 
@@ -155,7 +155,7 @@ Matrix test_images() {
  * Load test labels
  * テスト用ラベルの読み込み
  */
-Matrix test_labels() {
+inline Matrix test_labels() {
     return load_labels(test_label_file);
 }
 

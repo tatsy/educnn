@@ -40,7 +40,7 @@ public:
 
         input_ = input;
         output_ = Matrix::Zero(batchsize, n_output);
-        omp_parallel_for(int b = 0; b < batchsize; b++) {
+        OMP_PARALLEL_FOR(int b = 0; b < batchsize; b++) {
             for (int o = 0; o < n_output; o++) {
                 double accum = 0.0;
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
@@ -60,13 +60,11 @@ public:
         const int n_output = output_size_.total() * n_channels_;
 
         Matrix dLdx = Matrix::Zero(batchsize, n_input);
-        omp_parallel_for(int b = 0; b < batchsize; b++) {
+        OMP_PARALLEL_FOR(int b = 0; b < batchsize; b++) {
             for (int o = 0; o < n_output; o++) {
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
-
-#pragma omp atomic
-                    dLdx(b, edge.to) += dLdy(b, o) / pool_size_.total();
+                    OMP_ATOMIC(dLdx(b, edge.to) += dLdy(b, o) / pool_size_.total());
                 }
             }
         }

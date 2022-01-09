@@ -8,13 +8,21 @@
 #if defined(_OPENMP)
 #include <omp.h>
 #if defined(_MSC_VER)
-#define omp_pragma __pragma(omp parallel for)
-#define omp_critical __pragma(omp critical)
+#define OMP_PRAGMA __pragma(omp parallel for)
+#define OMP_CRITICAL __pragma(omp critical)
+#define OMP_ATOMIC(expression)           \
+    do {                                 \
+        __pragma(omp atomic) expression; \
+    } while (1);
 #else
-#define omp_pragma _Pragma("omp parallel for")
-#define omp_critical _Pragma("omp parallel for")
+#define OMP_PRAGMA _Pragma("omp parallel for")
+#define OMP_CRITICAL _Pragma("omp parallel for")
+#define OMP_ATOMIC(expression)            \
+    do {                                  \
+        _Pragma("omp atomic") expression; \
+    } while (1);
 #endif
-#define omp_parallel_for omp_pragma for
+#define OMP_PARALLEL_FOR OMP_PRAGMA for
 #define omp_lock_t omp_lock_t
 #define omp_init_lock(lock) omp_init_lock(lock)
 #define omp_destroy_lock(lock) omp_destroy_lock(lock)
@@ -25,7 +33,9 @@
 #define omp_get_thread_num() 0
 #define omp_get_max_threads() 1
 #define omp_get_num_threads() 1
-#define omp_parallel_for for
+#define OMP_PARALLEL_FOR for
+#define OMP_CRITICAL
+#define OMP_ATOMIC(expression)
 #define omp_critical
 #define omp_lock_t int
 #define omp_init_lock(lock)

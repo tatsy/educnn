@@ -61,7 +61,7 @@ public:
         input_ = input;
         output_ = Matrix::Zero(batchsize, n_output);
         for (int b = 0; b < batchsize; b++) {
-            omp_parallel_for(int o = 0; o < n_output; o++) {
+            OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 double accum = 0.0;
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
@@ -82,7 +82,7 @@ public:
 
         Matrix dLdx = Matrix::Zero(batchsize, n_input);
         for (int b = 0; b < batchsize; b++) {
-            omp_parallel_for(int o = 0; o < n_output; o++) {
+            OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
 
@@ -95,7 +95,7 @@ public:
         std::vector<Matrix> current_dW(in_channels * out_channels, Matrix::Zero(kernel_size_.rows, kernel_size_.cols));
         std::vector<double> current_db(out_channels, 0.0);
         for (int b = 0; b < batchsize; b++) {
-            omp_parallel_for(int o = 0; o < n_output; o++) {
+            OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
 
@@ -110,7 +110,7 @@ public:
             }
         }
 
-        omp_parallel_for(int k = 0; k < in_channels * out_channels; k++) {
+        OMP_PARALLEL_FOR(int k = 0; k < in_channels * out_channels; k++) {
             for (int i = 0; i < kernel_size_.rows; i++) {
                 for (int j = 0; j < kernel_size_.cols; j++) {
                     dW[k](i, j) = momentum * dW[k](i, j) + eta * current_dW[k](i, j);
@@ -119,7 +119,7 @@ public:
             }
         }
 
-        omp_parallel_for(int k = 0; k < out_channels; k++) {
+        OMP_PARALLEL_FOR(int k = 0; k < out_channels; k++) {
             b[k] -= db[k];
             db[k] = momentum * db[k] + eta * current_db[k];
         }
