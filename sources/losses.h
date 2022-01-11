@@ -8,14 +8,13 @@
 #include "common.h"
 
 /**
- * @brief: Base class for loss functions.
+ * Base class for loss functions.
+ * 誤差関数のための基底クラス
  */
 class AbstractLoss : private Uncopyable {
 public:
-    AbstractLoss() {
-    }
-    virtual ~AbstractLoss() {
-    }
+    AbstractLoss() = default;
+    virtual ~AbstractLoss() = default;
 
     virtual const Matrix &forward(const Matrix &pred, const Matrix &real) = 0;
     virtual Matrix backward() = 0;
@@ -28,13 +27,12 @@ protected:
 
 /**
  * Cross-entropy loss
+ * 交差エントロピー誤差
  */
 class CrossEntropyLoss : public AbstractLoss {
 public:
-    CrossEntropyLoss() {
-    }
-    virtual ~CrossEntropyLoss() {
-    }
+    CrossEntropyLoss() = default;
+    virtual ~CrossEntropyLoss() = default;
 
     const Matrix &forward(const Matrix &input, const Matrix &target) override {
         const Matrix prod = -target.cwiseProduct(input.array().log().matrix());
@@ -51,13 +49,12 @@ public:
 
 /**
  * Negative log likelihood for log-softmax activation
+ * 対数ソフトマックスで活性化された出力に対する負値対数尤度関数
  */
 class NLLLoss : public AbstractLoss {
 public:
-    NLLLoss() {
-    }
-    virtual ~NLLLoss() {
-    }
+    NLLLoss() = default;
+    virtual ~NLLLoss() = default;
 
     const Matrix &forward(const Matrix &input, const Matrix &target) override {
         const Matrix prod = -target.cwiseProduct(input);

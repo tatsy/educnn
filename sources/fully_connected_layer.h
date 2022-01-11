@@ -28,6 +28,8 @@ public:
         // X. Glorotによるパラメータ初期化のための標準偏差
         const double xg_stddev = sqrt(2.0 / (input_size_ + output_size_));
 
+        // Parameter initialization
+        // パラメータの初期化
         Random &rng = Random::getInstance();
         for (int i = 0; i < output_size; i++) {
             for (int j = 0; j < input_size; j++) {
@@ -43,6 +45,8 @@ public:
     }
 
     const Matrix &forward(const Matrix &input) override {
+        // Simple linear operation (y = Wx + b)
+        // 単純な線形演算 (y = Wx + b)
         const int batchsize = (int)input.rows();
         input_ = input;
         output_ = input * W.transpose() + b.replicate(batchsize, 1);
@@ -50,14 +54,20 @@ public:
     }
 
     Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
+        // Assum x and y are input and output of this layer, hence back-prop transforms dLdy to dLdx.
+        // xとyがこのレイヤーの入出力だと仮定. 誤差逆伝播のためにdLdyをdLdxに変換する
         const int batchsize = (int)dLdy.rows();
         const Matrix dLdx = dLdy * W;
 
+        // Momentum SGD
+        // 慣性つき確率的最急降下法
         const Matrix current_dW = dLdy.transpose() * input_;
         const Matrix current_db = dLdy.colwise().sum();
         dW = momentum * dW + lr * current_dW;
         db = momentum * db + lr * current_db;
 
+        // Update parameters
+        // パラメータの更新
         W -= dW;
         b -= db;
 

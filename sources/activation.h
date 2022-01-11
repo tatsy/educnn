@@ -8,7 +8,8 @@
 #include "abstract_layer.h"
 
 /**
- * @brief: ReLU activation function
+ * ReLU activation function
+ * ReLU 活性化関数
  */
 class ReLU : public AbstractLayer {
 public:
@@ -28,11 +29,12 @@ public:
 
     Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         Matrix dLdx(input_.rows(), input_.cols());
-        dLdx.setZero();
         for (int b = 0; b < input_.rows(); b++) {
             for (int i = 0; i < input_.cols(); i++) {
                 if (input_(b, i) >= 0.0) {
                     dLdx(b, i) = dLdy(b, i);
+                } else {
+                    dLdx(b, i) = 0.0;
                 }
             }
         }
@@ -41,7 +43,8 @@ public:
 };
 
 /**
- * @brief: Sigmoid activation function
+ * Sigmoid activation function
+ * シグモイド活性化関数
  */
 class Sigmoid : public AbstractLayer {
 public:
@@ -66,7 +69,8 @@ public:
 };
 
 /**
- * @brief: Softmax activation function (for last dimension)
+ * Softmax activation function (row-wise operation)
+ * ソフトマックス活性化関数 (行ごとに適用される)
  */
 class Softmax : public AbstractLayer {
 public:
@@ -80,6 +84,9 @@ public:
     const Matrix &forward(const Matrix &input) override {
         const int dims = (int)input.cols();
         input_ = input;
+
+        // To increase numerical precision, inputs are divided by their max value
+        // 数値計算の精度を向上させるために、入力の値をその最大値で予め割り算しておく
         const Matrix cwiseMax = input.rowwise().maxCoeff().replicate(1, dims);
         const Matrix normalized = input.cwiseQuotient(cwiseMax);
         const Matrix numer = normalized.array().exp().matrix();
@@ -113,7 +120,8 @@ public:
 };
 
 /**
- * @brief: Log-softmax activation function (for last dimension)
+ * Log-softmax activation function (row-wise operation)
+ * 対数ソフトマックス活性化関数 (行ごとに適用される)
  */
 class LogSoftmax : public AbstractLayer {
 public:
@@ -127,6 +135,9 @@ public:
     const Matrix &forward(const Matrix &input) override {
         const int dims = (int)input.cols();
         input_ = input;
+
+        // To avoid loss of trailing digits, inputs are subtracted by their max value
+        // 情報落ち誤差を防ぐために、入力の値をその最大値で予め引き算しておく
         const Matrix cwiseMax = input.rowwise().maxCoeff().replicate(1, dims);
         const Matrix diff = input - cwiseMax;
         const Matrix sumexpDiff = diff.array().exp().matrix().rowwise().sum();
