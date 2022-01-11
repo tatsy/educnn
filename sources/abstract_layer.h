@@ -22,7 +22,7 @@ public:
     }
 
     virtual const Matrix &forward(const Matrix &input) = 0;
-    virtual Matrix backward(const Matrix &error, double eta = 0.1, double momentum = 0.5) = 0;
+    virtual Matrix backward(const Matrix &error, double lr = 0.1, double momentum = 0.5) = 0;
 
     inline const Matrix &input() const {
         return input_;

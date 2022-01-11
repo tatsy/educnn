@@ -26,7 +26,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         Matrix dLdx(input_.rows(), input_.cols());
         dLdx.setZero();
         for (int b = 0; b < input_.rows(); b++) {
@@ -59,7 +59,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const Matrix dydx = output_.array() * (1.0 - output_.array());
         return dLdy.cwiseProduct(dydx);
     }
@@ -88,7 +88,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const int batchsize = (int)dLdy.rows();
         const int dims = (int)dLdy.cols();
 
@@ -135,7 +135,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const int batchsize = (int)dLdy.rows();
         const int dims = (int)dLdy.cols();
 

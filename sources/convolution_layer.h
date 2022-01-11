@@ -29,13 +29,21 @@ public:
         dW.resize(in_channels * out_channels);
         db.resize(out_channels);
 
+        // X. Glorot's standard deviation for parameter initialization
+        // X. Glorotによるパラメータ初期化のための標準偏差
+        const int n_input = input_size_.total() * in_channels;
+        const int n_output = output_size_.total() * out_channels;
+        const double xg_stddev = sqrt(2.0 / (n_input + n_output));
+
+        // Parameter initialization
+        // パラメータの初期化
         Random &rng = Random::getInstance();
         for (int k = 0; k < in_channels * out_channels; k++) {
             W[k] = Matrix(kernel_size_.rows, kernel_size_.cols);
             dW[k] = Matrix(kernel_size.rows, kernel_size_.cols);
             for (int i = 0; i < kernel_size_.rows; i++) {
                 for (int j = 0; j < kernel_size_.cols; j++) {
-                    W[k](i, j) = rng.normal() * 0.1;
+                    W[k](i, j) = rng.normal() * xg_stddev;
                     dW[k](i, j) = 0.0;
                 }
             }
@@ -47,6 +55,7 @@ public:
         }
 
         // Initialize bipartite graph between input and output
+        // 入出力画素の接続を表す二部グラフの初期化
         edges_o2i.resize(output_size_.total() * out_channels);
         initialize();
     }
@@ -75,7 +84,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const int batchsize = (int)dLdy.rows();
         const int n_input = input_size_.total() * in_channels;
         const int n_output = output_size_.total() * out_channels;
@@ -96,28 +105,26 @@ public:
             OMP_PARALLEL_FOR(int o = 0; o < n_output; o++) {
                 for (int e = 0; e < edges_o2i[o].size(); e++) {
                     Edge &edge = edges_o2i[o][e];
-
-                    OMP_ATOMIC(current_dW[edge.kernel_id](edge.ky, edge.kx) +=
-                               dLdy(b, o) * input_(b, edge.to) / (batchsize * output_size_.total()));
+                    OMP_ATOMIC(current_dW[edge.kernel_id](edge.ky, edge.kx) += dLdy(b, o) * input_(b, edge.to));
                 }
 
                 const int out_ch = o / output_size_.total();
-                OMP_ATOMIC(current_db[out_ch] += dLdy(b, o) / (batchsize * output_size_.total()));
+                OMP_ATOMIC(current_db[out_ch] += dLdy(b, o));
             }
         }
 
         OMP_PARALLEL_FOR(int k = 0; k < in_channels * out_channels; k++) {
             for (int i = 0; i < kernel_size_.rows; i++) {
                 for (int j = 0; j < kernel_size_.cols; j++) {
-                    dW[k](i, j) = momentum * dW[k](i, j) + eta * current_dW[k](i, j);
+                    dW[k](i, j) = momentum * dW[k](i, j) + lr * current_dW[k](i, j);
                     W[k](i, j) -= dW[k](i, j);
                 }
             }
         }
 
         OMP_PARALLEL_FOR(int k = 0; k < out_channels; k++) {
+            db[k] = momentum * db[k] + lr * current_db[k];
             b[k] -= db[k];
-            db[k] = momentum * db[k] + eta * current_db[k];
         }
 
         return dLdx;

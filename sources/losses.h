@@ -5,6 +5,8 @@
 #ifndef _LOSSES_H_
 #define _LOSSES_H_
 
+#include "common.h"
+
 /**
  * @brief: Base class for loss functions.
  */

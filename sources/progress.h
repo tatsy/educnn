@@ -70,6 +70,7 @@ public:
         if (m_step == m_total) {
             printf("\n");
         }
+        fflush(stdout);
     }
 
     void finish() {

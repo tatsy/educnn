@@ -27,6 +27,7 @@ public:
         output_size_.cols = input_size_.cols / pool_size_.cols;
 
         // Initialize bipartite graph between input and output
+        // 入出力画素の接続を表す二部グラフの初期化
         edges_o2i.resize(output_size_.total() * n_channels);
         initialize();
     }
@@ -61,7 +62,7 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const int batchsize = (int)dLdy.rows();
         const int n_input = input_size_.total() * n_channels_;
         const int n_output = output_size_.total() * n_channels_;

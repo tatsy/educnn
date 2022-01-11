@@ -21,12 +21,12 @@ int main(int argc, char **argv) {
     // Parameters
     const int epochs = 6;
     const int batchsize = 64;
+    const double eta = 1.0e-2;    // step size
+    const double momentum = 0.1;  // momentum
 
     // Train data
     Matrix train_data = mnist::train_images();
     Matrix train_labels = mnist::train_labels();
-    const double eta = 1.0e-2;  // step size
-    const double lambda = 0.1;  // momentum
 
     std::vector<std::shared_ptr<AbstractLayer>> layers;
     if (net_type == MLP_NETWORK_TYPE) {
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
             const double mean_loss = losses.mean();
             const double mean_acc = accuracy(output, batch_labels);
 
-            network.backward(criterion->backward(), eta, lambda);
+            network.backward(criterion->backward(), eta, momentum);
             pbar.setDescription("#%d: loss=%6.3f, acc=%6.3f", e + 1, mean_loss, mean_acc);
             pbar.step();
         }

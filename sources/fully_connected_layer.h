@@ -24,10 +24,14 @@ public:
         , b(1, output_size)
         , dW(output_size, input_size)
         , db(1, output_size) {
+        // X. Glorot's standard deviation for parameter initialization
+        // X. Glorotによるパラメータ初期化のための標準偏差
+        const double xg_stddev = sqrt(2.0 / (input_size_ + output_size_));
+
         Random &rng = Random::getInstance();
         for (int i = 0; i < output_size; i++) {
             for (int j = 0; j < input_size; j++) {
-                W(i, j) = rng.normal() * 0.1;
+                W(i, j) = rng.normal() * xg_stddev;
                 dW(i, j) = 0.0;
             }
             b(0, i) = 0.0;
@@ -45,14 +49,14 @@ public:
         return output_;
     }
 
-    Matrix backward(const Matrix &dLdy, double eta = 0.1, double momentum = 0.5) override {
+    Matrix backward(const Matrix &dLdy, double lr = 0.1, double momentum = 0.5) override {
         const int batchsize = (int)dLdy.rows();
         const Matrix dLdx = dLdy * W;
 
-        const Matrix current_dW = dLdy.transpose() * input_ / batchsize;
-        const Matrix current_db = dLdy.colwise().mean();
-        dW = momentum * dW + eta * current_dW;
-        db = momentum * db + eta * current_db;
+        const Matrix current_dW = dLdy.transpose() * input_;
+        const Matrix current_db = dLdy.colwise().sum();
+        dW = momentum * dW + lr * current_dW;
+        db = momentum * db + lr * current_db;
 
         W -= dW;
         b -= db;
